@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+  <script src="http://maps.google.com/maps/api/js?key=AIzaSyA-K7PhHDzZLKLawrtrfSb0wuJZ-udUAzU"></script>
+  <script src="gmaps.js"></script>
+  <link rel="stylesheet" type="text/css" href="bootstrap.css">
+  <link rel="stylesheet" href="style.css">
+  </style>
+</head>
+<body>
+  <div class="page-header" id="titulo">
+      <h1>GMaps Investigation</h1>
+      <p>Toque 2 puntos para saber la distancia y el tiempo de recorrido</p>
+  </div>
+  
+  <div id="map"></div>
+  <div>
+      <br/>
+      <p id="distance"></p>
+      <p id="time"></p>
+    </div>
+
+  <script>
+    var map = new GMaps({
+      el: '#map',
+      zoom: 14,
+      lat: 9.909580,
+      lng: -84.054062,
+      click: addMarker
+});
+
+function addMarker(e) 
+{
+  if(map.markers.length<=2){
+    if(map.markers.length==0){
+      addStartPoint(e);
+    }
+    else if(map.markers.length==1){
+      addEndPoint(e);
+      drawRoute();
+      calculateDistance();
+    }
+  }
+}
+
+function addStartPoint(e){
+  map.addMarker({
+  lat: e.latLng.lat(),
+  lng: e.latLng.lng(),
+  title:"Start Point",
+  icon: {
+      path: google.maps.SymbolPath.CIRCLE,
+      scale: 5, //tamaño
+      strokeColor: '#f00', //color del borde
+      strokeWeight: 10
+}
+  });
+}
+
+function addEndPoint(e){
+  map.addMarker({
+  lat: e.latLng.lat(),
+  lng: e.latLng.lng(),
+  title:"End Point",
+  icon: {
+      path: google.maps.SymbolPath.CIRCLE,
+      scale: 5, //tamaño
+      strokeColor: '#009975', //color del borde
+      strokeWeight: 10
+}
+  });
+}
+
+function drawRoute(){
+  var start = map.markers[0].position;
+  var end = map.markers[1].position;
+
+  map.drawRoute({
+  origin: [start.lat(), start.lng()],
+  destination: [end.lat(), end.lng()],
+  travelMode: 'driving',
+  strokeColor: '#131540',
+  strokeOpacity: 0.6,
+  strokeWeight: 6
+});
+}
+
+function calculateDistance(){
+  var start = map.markers[0].position;
+  var end = map.markers[1].position;
+  var lat1 = 0, lat2 = 0, long1 = 0, lon2= 0, dist=0;
+
+  lat1 = start.lat();
+  lat2 = end.lat();
+  lon1 = start.lng();
+  lon2 = end.lng();
+    if ((lat1 == lat2) && (lon1 == lon2)) {
+	}
+	else {
+		var radlat1 = Math.PI * lat1/180;
+		var radlat2 = Math.PI * lat2/180;
+		var theta = lon1-lon2;
+		var radtheta = Math.PI * theta/180;
+		var dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+		if (dist > 1) {
+			dist = 1;
+		}
+		dist = Math.acos(dist);
+		dist = dist * 180/Math.PI;
+		dist = dist * 60 * 1.1515;
+		dist = dist * 1.609344;
+  }
+  $( "#distance" ).html("Distancia: "+Math.round(dist).toFixed(1)+"km");
+  $( "#time" ).html("Tiempo estimado : "+Math.round(dist*4.5).toFixed(0)+"min");
+}
+
+  </script>
+  
+  
+</body>
+</html>
